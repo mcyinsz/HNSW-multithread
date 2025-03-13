@@ -1,0 +1,5 @@
+*main.cpp
+*/build
+/util/CMakeLists.txt
+.vscode
+__pycache__
