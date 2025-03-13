@@ -1,52 +1,134 @@
-# pragma once
-
-#ifndef HNSW_H
+#ifndef HNSW_H  // 防止重复包含
 #define HNSW_H
 
+#include <string>  // 包含必要的头文件
 #include <vector>
-#include <queue>
-#include <unordered_set>
-#include <random>
-#include <cmath>
-#include <limits>
-#include <cassert>
+#include <utils/RandomGenerator.h>
+#include <omp.h>
+#include <utils/DistanceComputer.h>
+#include <utils/VisitedTable.h>
 
 class HNSW {
 public:
-    using storage_idx_t = int32_t;  // 存储索引类型
-    using Node = std::pair<float, storage_idx_t>;  // 节点类型（距离，索引）
+    using storage_idx_t = int32_t;
+    using idx_t = int64_t;
+    // construct function
+    explicit HNSW(int M = 32);
 
-    // 构造函数
-    HNSW(int M = 16, int efConstruction = 200, int maxNeighbors = 200);
+    // ============================================
+    // basic functions
+    // ============================================
+    void reset(); // reset the inner states
 
-    // 添加向量
-    void add_with_locks(const std::vector<float>& point);
+    // ============================================
+    // for build HNSW structure
+    // ============================================
 
-    // 搜索最近邻
-    std::vector<storage_idx_t> search(const std::vector<float>& query, int k, int efSearch = 100);
+    // set default degree limits
+    void set_default_probas(int M, float levelMult);
+
+    // set the number of neighbors for certain level
+    void set_nb_neighbors(int level_no, int n);
+
+    // number of neighbors for this level
+    int nb_neighbors(int layer_no) const;
+
+    // range of entries in the neighbors table of nodes number at layer_no
+    void neighbor_range(idx_t no, int layer_no, size_t* begin, size_t* end)
+        const;
+
+    // return a random level
+    int random_level();
+
+    // prepare level tables for new add nodes
+    int prepare_level_tab(
+        size_t n,
+        bool preset_levels = false
+    );
+
+    // add links for a given point in given level
+    // the input level is commonly set 0
+    void add_links_starting_from(
+        DistanceComputer& ptdis,
+        storage_idx_t pt_id,
+        storage_idx_t nearest, // previous nearest (probably from the greedy search)
+        float d_nearest,
+        int level,
+        omp_lock_t* locks,
+        VisitedTable& vt,
+        bool keep_max_size_level0 = false
+    );
+
+    // add point pt_id on all levels <= pt_level and build the link
+    void add_with_locks(
+        DistanceComputer&ptdis,
+        int pt_level,
+        int pt_id,
+        std::vector<omp_lock_t>& locks,
+        VisitedTable& vt,
+        bool keep_max_size_level0 = false
+    );
+
+    // ============================================
+    // for search on HNSW structure
+    // ============================================
+
+    void search(
+        DistanceComputer& qdis,
+        HeapResultHandler& res, // different from FAISS, the result handler would only store the small distance
+        VisitedTable&  vt,
+        int Param_efSearch = 16 // different from FAISS, no HNSW Search Parameters
+    ) const;
+
+    // class method
+    static void shrink_neighbor_list(
+        DistanceComputer& qdis,
+        std::priority_queue<NodeDistFarther>& input,
+        std::vector<NodeDistFarther>& output,
+        int max_size,
+        bool keep_max_size_level0 = false);
 
 private:
-    // 随机生成层级
-    int randomLevel();
+    // member varients
+    
+    // ============================================
+    // for build HNSW structure
+    // ============================================
+    
+    // assignment probability to each layer (sum = 1)
+    std::vector<double> assign_probas;
+    
+    // number of neighbors stored per layer (cumulative)
+    // should not be changed since the first add operation
+    std::vector<int> cum_num_neighbor_per_level;
 
-    // 搜索层级
-    void searchLevel(const std::vector<float>& query, std::priority_queue<Node>& candidates, int ef, int level);
+    // (level + 1) of each vector
+    std::vector<int> levels;
 
-    // 数据存储
-    std::vector<std::vector<float>> data;  // 存储所有向量
-    std::vector<int> levels;               // 每个向量的层级
-    std::vector<std::vector<storage_idx_t>> neighbors;  // 每个向量的邻居
+    // the [offsets[i], offsets[i + 1]) is the `neighors` indices
+    // storage range for node with index i
+    std::vector<size_t> offsets;
+    std::vector<storage_idx_t> neighbors;
 
-    // HNSW 参数
-    int M;                // 每层的最大邻居数
-    int efConstruction;   // 构建时的扩展因子
-    int maxNeighbors;     // 最大邻居数
-    int maxLevel;         // 最大层级
-    storage_idx_t entryPoint;  // 入口点
+    // random generator
+    RandomGenerator rng;
 
-    // 随机数生成器
-    std::mt19937 rng;
-    std::uniform_real_distribution<float> randUniform;
+    // Construction searching width
+    int efConstruction = 40;
+
+    // ============================================
+    // for search HNSW structure
+    // ============================================
+
+    // entry point for add and search
+    storage_idx_t entry_point = -1;
+
+    // max level
+    int max_level = -1;
+
+    // beam search width
+    int efSearch = 16;
+
 };
 
-#endif // HNSW_H
+#endif  // MYCLASS_H
