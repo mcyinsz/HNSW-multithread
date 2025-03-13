@@ -1,20 +1,26 @@
 # include<queue>
 # include <algorithm>
+#include <limits>
 
 class HeapResultHandler {
-    int k;
+    
     std::priority_queue<std::pair<float, int>> max_heap;
 
 public:
-    HeapResultHandler(int k) : k(k) {}
+    int k;
+    float threshold;
+    HeapResultHandler(int k) : k(k), threshold(std::numeric_limits<float>::max()) {}  // set threshold to max
 
-    void add_result(float dis, int idx) {
+    bool add_result(float dis, int idx) {
         if (max_heap.size() < k || dis < max_heap.top().first) {
             max_heap.push({dis, idx});
             if (max_heap.size() > k) {
                 max_heap.pop();
             }
+            threshold = max_heap.top().first;
+            return true;
         }
+        return false;
     }
 
     std::pair<std::vector<float>, std::vector<int>> end() {

@@ -33,6 +33,9 @@ public:
     // number of neighbors for this level
     int nb_neighbors(int layer_no) const;
 
+    /// cumumlative nb up to (and excluding) this level
+    int cum_nb_neighbors(int layer_no) const;
+
     // range of entries in the neighbors table of nodes number at layer_no
     void neighbor_range(idx_t no, int layer_no, size_t* begin, size_t* end)
         const;
@@ -88,7 +91,9 @@ public:
         int max_size,
         bool keep_max_size_level0 = false);
 
-private:
+    // data structure
+
+// private:
     // member varients
     
     // ============================================
