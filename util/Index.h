@@ -1,9 +1,9 @@
 #include <vector>
 #include <constants.h>
-#include <distancecomputer.h>
+#include <DistanceComputer.h>
 #include <cassert>
 #include <ResultHandler.h>
-#include <distancecomputer.cpp>
+#include <DistanceComputer.cpp>
 
 class Index {
 public:
@@ -51,7 +51,10 @@ public:
         DistanceComputer* qdis = get_distance_computer();
 
         for (int i = 0; i < n; ++i) {
-            qdis->set_query(std::vector<float>(x.begin() + i * d, x.begin() + (i + 1) * d));
+            
+            const float* query_ptr = x.data() + i * d; // set the ith query vector to be the query of the distance computer
+            qdis->set_query(query_ptr);
+
             for (int index = 0; index < ntotal; ++index) {
                 float distance = (*qdis)(index);
                 res_list[i].add_result(distance, index);

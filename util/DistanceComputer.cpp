@@ -1,15 +1,15 @@
 #include <vector>
 #include <cmath>
-#include "distancecomputer.h"
+#include "DistanceComputer.h"
 
 class GenericDistanceComputerIP : public DistanceComputer {
     int d;  // 向量维度
     const std::vector<float>& storage;  // 连续内存存储的向量数据
-    std::vector<float> q;  // 查询向量
+    const float* q;  // 查询向量的指针
 
 public:
     GenericDistanceComputerIP(const std::vector<float>& storage, int d) 
-        : storage(storage), d(d) {}
+        : storage(storage), d(d), q(nullptr) {}
 
     float operator()(int index) override {
         float sum = 0.0f;
@@ -27,23 +27,23 @@ public:
         return -sum;
     }
 
-    void set_query(const std::vector<float>& x) override {
+    void set_query(const float* x) override {
         q = x;
     }
 
     void set_query_storage(int idx) override {
-        q.assign(storage.begin() + idx * d, storage.begin() + (idx + 1) * d);
+        q = &storage[idx * d];
     }
 };
 
 class GenericDistanceComputerL2 : public DistanceComputer {
     int d;  // 向量维度
     const std::vector<float>& storage;  // 连续内存存储的向量数据
-    std::vector<float> q;  // 查询向量
+    const float* q;  // 查询向量的指针
 
 public:
     GenericDistanceComputerL2(const std::vector<float>& storage, int d) 
-        : storage(storage), d(d) {}
+        : storage(storage), d(d), q(nullptr) {}
 
     float operator()(int index) override {
         float sum = 0.0f;
@@ -63,11 +63,11 @@ public:
         return std::sqrt(sum);
     }
 
-    void set_query(const std::vector<float>& x) override {
+    void set_query(const float* x) override {
         q = x;
     }
 
     void set_query_storage(int idx) override {
-        q.assign(storage.begin() + idx * d, storage.begin() + (idx + 1) * d);
+        q = &storage[idx * d];
     }
 };
