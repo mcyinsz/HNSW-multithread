@@ -1,9 +1,9 @@
 #include <vector>
-#include <constants.h>
-#include <DistanceComputer.h>
+#include <utils/constants.h>
+#include <utils/DistanceComputer.h>
 #include <cassert>
-#include <ResultHandler.h>
-#include <DistanceComputer.cpp>
+#include <utils/ResultHandler.h>
+#include <utils/DistanceComputer.cpp>
 
 class Index {
 public:

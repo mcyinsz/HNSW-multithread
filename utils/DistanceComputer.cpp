@@ -1,6 +1,6 @@
 #include <vector>
 #include <cmath>
-#include "DistanceComputer.h"
+#include "utils/DistanceComputer.h"
 
 class GenericDistanceComputerIP : public DistanceComputer {
     int d;  // 向量维度
