@@ -171,7 +171,6 @@ void hnsw_search(
         dis->set_query(query_ptr);
 
         hnsw.search(*dis, res, vt, Param_efSearch);
-        std::cout << " result handler size in IndexHNSW::hnsw_search " << bres[query_number].max_heap.size()   << std::endl; //debug
     }
 }
 
@@ -194,10 +193,8 @@ void IndexHNSW::search(
 
     hnsw_search(this, n, x, res_list, Param_efSearch);
 
-    std::cout << "result handler size in IndexHNSW::search"<< res_list[0].max_heap.size()<< std::endl; //debug
     for (int i = 0; i < n; ++i) {
         auto [distance, index] = res_list[i].end();
-        std::cout << "  distances[0] " << distance[0] << std::endl; //debug
         if (metric_type == INNER_PRODUCT) {
             std::transform(distance.begin(), distance.end(), distance.begin(), [](float x) { return -x; }); // the instant function
         }

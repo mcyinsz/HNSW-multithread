@@ -553,13 +553,13 @@ void search_from_candidates(
                 }
 
             candidates.emplace(d, v1); // add the new candidate into heap
-        }
+            }
 
-        nstep++;
-        if (false && nstep > efSearch) {
-            break;
+            nstep++;
+            if (false && nstep > efSearch) {
+                break;
+            }
         }
     }
 }
-
 
