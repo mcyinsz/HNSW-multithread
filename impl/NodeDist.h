@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
+#pragma once
 
 // std::queue<NodeDistCloser> to build a maxheap
 struct NodeDistCloser {

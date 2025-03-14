@@ -7,6 +7,9 @@
 #include <omp.h>
 #include <utils/DistanceComputer.h>
 #include <utils/VisitedTable.h>
+#include <impl/NodeDist.h>
+#include <queue>
+#include <utils/ResultHandler.h>
 
 class HNSW {
 public:
@@ -90,6 +93,28 @@ public:
         std::vector<NodeDistFarther>& output,
         int max_size,
         bool keep_max_size_level0 = false);
+
+    // functional functions
+    friend void greedy_update_nearest(
+        const HNSW& hnsw,
+        DistanceComputer& qdis,
+        int level,
+        storage_idx_t& nearest,
+        float& d_nearest);
+
+    friend int count_below(const std::vector<float>& previous_vectors, float d0);
+
+    friend void search_from_candidates(
+        const HNSW& hnsw,
+        DistanceComputer& qdis,
+        HeapResultHandler& res,
+        std::vector<NodeDistFarther>& vec_candidates, // attention, the data structure is changed to std::vector
+        VisitedTable& vt,
+        int level,
+        int nres_in,
+        int Param_efSearch);
+    
+    
 
     // data structure
 

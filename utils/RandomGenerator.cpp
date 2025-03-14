@@ -1,4 +1,4 @@
-#include <RandomGenerator.h>
+#include <utils/RandomGenerator.h>
 
 RandomGenerator::RandomGenerator(int64_t seed) : mt((unsigned int)seed) {}
 

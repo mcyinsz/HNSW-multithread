@@ -1,6 +1,7 @@
 #include <vector>
 #include <bits/types.h>
 #include <cstring>
+#include <stdexcept>
 
 // the Visited Table for graph walking
 struct VisitedTable {
@@ -8,7 +9,13 @@ struct VisitedTable {
     std::vector<uint8_t> visited;
     uint8_t visno;
 
-    explicit VisitedTable(int size) : visited(size), visno(1) {}
+    explicit VisitedTable(int size) : visited(size), visno(1) {
+
+        if (size < 0) {
+            throw std::invalid_argument("Size cannot be negative");
+        }
+
+    }
 
     /// set flag #no to true
     void set(int no) {

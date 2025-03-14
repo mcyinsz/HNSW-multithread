@@ -12,6 +12,9 @@ public:
         : storage(storage), d(d), q(nullptr) {}
 
     float operator()(int index) override {
+        if (q == nullptr) {
+            throw std::runtime_error("Query pointer is not set");
+        }
         float sum = 0.0f;
         for (int i = 0; i < d; ++i) {
             sum += q[i] * storage[index * d + i];

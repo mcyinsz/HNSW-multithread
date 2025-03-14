@@ -1,14 +1,16 @@
 # include<queue>
 # include <algorithm>
 #include <limits>
+#pragma once
 
 class HeapResultHandler {
     
-    std::priority_queue<std::pair<float, int>> max_heap;
+    
 
 public:
     int k;
     float threshold;
+    std::priority_queue<std::pair<float, int>> max_heap;
     HeapResultHandler(int k) : k(k), threshold(std::numeric_limits<float>::max()) {}  // set threshold to max
 
     bool add_result(float dis, int idx) {

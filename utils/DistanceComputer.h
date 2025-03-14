@@ -1,6 +1,6 @@
 #ifndef DISTANCE_COMPUTER_H
 #define DISTANCE_COMPUTER_H
-
+#pragma once
 #include <vector>
 
 class DistanceComputer {

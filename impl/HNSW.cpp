@@ -2,6 +2,8 @@
 #include <impl/NodeDist.h>
 #include <utils/ResultHandler.h>
 #include <cassert>
+#include <cmath>
+#include <omp.h>
 
 using storage_idx_t = HNSW::storage_idx_t;
 
@@ -21,6 +23,20 @@ void HNSW::reset() {
     offsets.push_back(0);
     levels.clear();
     neighbors.clear();
+}
+
+/**************************************************************
+ * assissant functions
+ **************************************************************/
+
+ int count_below(const std::vector<float>& previous_vectors, float d0) {
+    int sum = 0;
+    for (int i=0; i < previous_vectors.size(); i++){
+        if (previous_vectors[i] < d0){
+            sum ++;
+        }
+    }
+    return sum;
 }
 
 // ============================================
@@ -423,7 +439,7 @@ void HNSW::search(
     DistanceComputer& qdis,
     HeapResultHandler& res,
     VisitedTable& vt,
-    int Param_efSearch = 16) const {
+    int Param_efSearch) const {
 
     // empty HNSW
     if (entry_point == -1) {
@@ -445,18 +461,17 @@ void HNSW::search(
     // this is the most common branch
     std::vector<NodeDistFarther> vec_candidates;
 
-    NodeDistFarther nearest_node = NodeDistFarther(nearest, d_nearest);
+    NodeDistFarther nearest_node = NodeDistFarther(d_nearest , nearest);
     vec_candidates.push_back(nearest_node);
 
     search_from_candidates(
             *this, qdis, res, vec_candidates, vt, 0, 0, Param_efSearch);
-
     vt.advance();
 
     return;
 }
 
-int search_from_candidates(
+void search_from_candidates(
     const HNSW& hnsw,
     DistanceComputer& qdis,
     HeapResultHandler& res,
@@ -503,9 +518,9 @@ int search_from_candidates(
         
         int v0 = candidates.top().id; 
         float d0 = candidates.top().d;
+
         candidates.pop();
         previous_poped_distance.push_back(d0);
-
         // tricky stopping condition: there are more that ef
         // distances that are processed already that are smaller
         // than d0
@@ -516,11 +531,11 @@ int search_from_candidates(
         }
 
         size_t begin, end;
+        
         hnsw.neighbor_range(v0, level, &begin, &end);
-
-        // a reference version
         for (size_t j = begin; j < end; j++) {
             int v1 = hnsw.neighbors[j];
+
             if (v1 < 0)
                 break;
             if (vt.get(v1)) {
@@ -529,14 +544,15 @@ int search_from_candidates(
             vt.set(v1);
             ndis++;
             float d = qdis(v1);
+
             if (d < threshold) {
                 if (res.add_result(d, v1)) {
                     threshold = res.threshold;
+
                     nres += 1;
                 }
-            }
 
-            candidates.emplace(v1, d); // add the new candidate into heap
+            candidates.emplace(d, v1); // add the new candidate into heap
         }
 
         nstep++;
@@ -544,21 +560,6 @@ int search_from_candidates(
             break;
         }
     }
-
-    return;
 }
 
 
-/**************************************************************
- * assissant functions
- **************************************************************/
-
-int count_below(const std::vector<float>& previous_vectors, float d0){
-    int sum = 0;
-    for (int i=0; i < previous_vectors.size(); i++){
-        if (previous_vectors[i] < d0){
-            sum ++;
-        }
-    }
-    return sum;
-}

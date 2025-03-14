@@ -4,6 +4,7 @@
 #include <cassert>
 #include <utils/ResultHandler.h>
 #include <utils/DistanceComputer.cpp>
+#pragma once
 
 class Index {
 public:
@@ -19,7 +20,8 @@ public:
     virtual void add(int n, const std::vector<float>& x) = 0;
     virtual void search(int n, const std::vector<float>& x, int k, 
                         std::vector<std::vector<float>>& distances, 
-                        std::vector<std::vector<int>>& labels) = 0;
+                        std::vector<std::vector<int>>& labels,
+                        int Param_efSearch) = 0;
     virtual ~Index() = default;
 };
 
@@ -35,7 +37,7 @@ public:
         ntotal += n;
     }
 
-    DistanceComputer* get_distance_computer() {
+    DistanceComputer* get_distance_computer() const {
         if (metric_type == INNER_PRODUCT) {
             return new GenericDistanceComputerIP(vectors, d);
         } else if (metric_type == L2_DISTANCE) {
@@ -46,9 +48,16 @@ public:
 
     void search(int n, const std::vector<float>& x, int k, 
                 std::vector<std::vector<float>>& distances, 
-                std::vector<std::vector<int>>& labels) override {
+                std::vector<std::vector<int>>& labels,
+                int Param_efSearch = 0) override {
+
+
         std::vector<HeapResultHandler> res_list(n, HeapResultHandler(k));
         DistanceComputer* qdis = get_distance_computer();
+
+        if (qdis == nullptr) {
+            throw std::runtime_error("Distance computer is not initialized");
+        }
 
         for (int i = 0; i < n; ++i) {
             
