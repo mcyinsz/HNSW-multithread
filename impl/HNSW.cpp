@@ -443,12 +443,13 @@ void HNSW::search(
     // int ef = std::max(params ? params->efSearch : efSearch, k);
 
     // this is the most common branch
-    MinimaxHeap candidates(ef);
+    std::vector<NodeDistFarther> vec_candidates;
 
-    candidates.push(nearest, d_nearest);
+    NodeDistFarther nearest_node = NodeDistFarther(nearest, d_nearest);
+    vec_candidates.push_back(nearest_node);
 
     search_from_candidates(
-            *this, qdis, res, candidates, vt, stats, 0, 0, params);
+            *this, qdis, res, vec_candidates, vt, 0, 0, Param_efSearch);
 
     vt.advance();
 
@@ -459,7 +460,7 @@ int search_from_candidates(
     const HNSW& hnsw,
     DistanceComputer& qdis,
     HeapResultHandler& res,
-    std::vector<NodeDistCloser>& candidates, // attention, the data structure is changed to std::vector
+    std::vector<NodeDistFarther>& vec_candidates, // attention, the data structure is changed to std::vector
     VisitedTable& vt,
     int level,
     int nres_in,
@@ -471,10 +472,17 @@ int search_from_candidates(
     int efSearch = Param_efSearch;
 
     float threshold = res.threshold;
-    
-    for (int i = 0; i < candidates.size(); i++) {
-        HNSW::idx_t v1 = candidates[i].id;
-        float d = candidates[i].d;
+
+    // init the candidates with minheap structure
+    std::priority_queue<NodeDistFarther> candidates;
+
+    // init the previous distances list
+    std::vector<float> previous_poped_distance;
+
+    // add candidates into result handler
+    for (int i = 0; i < vec_candidates.size(); i++) {
+        HNSW::idx_t v1 = vec_candidates[i].id;
+        float d = vec_candidates[i].d;
         assert(v1 >= 0);
 
         if (d < threshold) {
@@ -483,20 +491,26 @@ int search_from_candidates(
             }
         }
 
+        candidates.push(vec_candidates[i]); // push candidate into heap
+        previous_poped_distance.push_back(d);
+
         vt.set(v1);
     }
 
     int nstep = 0;
 
     while (candidates.size() > 0) {
-        float d0 = 0;
-        int v0 = candidates.pop_min(&d0);
+        
+        int v0 = candidates.top().id; 
+        float d0 = candidates.top().d;
+        candidates.pop();
+        previous_poped_distance.push_back(d0);
 
         // tricky stopping condition: there are more that ef
         // distances that are processed already that are smaller
         // than d0
 
-        int n_dis_below = candidates.count_below(d0);
+        int n_dis_below = count_below(previous_poped_distance,d0);
         if (n_dis_below >= efSearch) {
             break;
         }
@@ -515,23 +529,36 @@ int search_from_candidates(
             vt.set(v1);
             ndis++;
             float d = qdis(v1);
-            if (!sel || sel->is_member(v1)) {
-                if (d < threshold) {
-                    if (res.add_result(d, v1)) {
-                        threshold = res.threshold;
-                        nres += 1;
-                    }
+            if (d < threshold) {
+                if (res.add_result(d, v1)) {
+                    threshold = res.threshold;
+                    nres += 1;
                 }
             }
 
-            candidates.push(v1, d);
+            candidates.emplace(v1, d); // add the new candidate into heap
         }
 
         nstep++;
-        if (!do_dis_check && nstep > efSearch) {
+        if (false && nstep > efSearch) {
             break;
         }
     }
 
     return;
+}
+
+
+/**************************************************************
+ * assissant functions
+ **************************************************************/
+
+int count_below(const std::vector<float>& previous_vectors, float d0){
+    int sum = 0;
+    for (int i=0; i < previous_vectors.size(); i++){
+        if (previous_vectors[i] < d0){
+            sum ++;
+        }
+    }
+    return sum;
 }
