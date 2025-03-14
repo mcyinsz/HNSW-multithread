@@ -39,7 +39,7 @@ float calculate_recall(const std::vector<int>& hnsw_labels, const std::vector<in
 int main() {
     // parameter settings
     int d = 128;  // vector dimension
-    int n = 1000;  // vector number
+    int n = 131072;  // vector number
     int n_query = 1;  // query vector number
     int k = 200;  // the kNN's K
 
@@ -69,7 +69,15 @@ int main() {
     // index.hnsw.print_neighbor_stats(0);
 
     // Flat index add
+    std::cout << "  starting adding vectors "  << std::endl;
+    // record building time 
+    start = std::chrono::high_resolution_clock::now();
     index_flat.add(n, vectors);
+    std::cout << "  end adding vectors "  << std::endl;
+    end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed_flat = end - start;
+    // output building time
+    std::cout << "Add completed in " << elapsed_flat.count() << " seconds." << std::endl;
 
     // generate random query vectors
     std::vector<float> query_vectors;
@@ -93,13 +101,22 @@ int main() {
     start = std::chrono::high_resolution_clock::now();
     // execute searching
     index.search(n_query, query_vectors, k, distances, labels, 200);
-    index_flat.search(n_query, query_vectors, k, distances_flat, labels_flat);
+    
 
     end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> elapsed2 = end - start;
 
     // output results
     std::cout << "Search completed in " << elapsed2.count() << " seconds." << std::endl;
+
+    // record searching time Flat
+    start = std::chrono::high_resolution_clock::now();
+    // execute searching
+    index.search(n_query, query_vectors, k, distances, labels, 200);  
+    end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed2_flat = end - start;
+    index_flat.search(n_query, query_vectors, k, distances_flat, labels_flat);
+    std::cout << "Flat Search completed in " << elapsed2_flat.count() << " seconds." << std::endl;
 
     // output results for first 5 results and recall
     for (int i = 0; i < std::min(5, n_query); ++i) {
