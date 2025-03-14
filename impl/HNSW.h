@@ -75,6 +75,8 @@ public:
         bool keep_max_size_level0 = false
     );
 
+    void print_neighbor_stats(int level) const;
+
     // ============================================
     // for search on HNSW structure
     // ============================================

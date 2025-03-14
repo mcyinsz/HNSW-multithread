@@ -16,6 +16,7 @@ public:
     bool add_result(float dis, int idx) {
         if (max_heap.size() < k || dis < max_heap.top().first) {
             max_heap.push({dis, idx});
+
             if (max_heap.size() > k) {
                 max_heap.pop();
             }

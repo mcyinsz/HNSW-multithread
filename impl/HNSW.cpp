@@ -4,6 +4,7 @@
 #include <cassert>
 #include <cmath>
 #include <omp.h>
+#include <unordered_set>
 
 using storage_idx_t = HNSW::storage_idx_t;
 
@@ -435,6 +436,66 @@ void greedy_update_nearest(
     }
 }
 
+void HNSW::print_neighbor_stats(int level) const {
+    assert(level < cum_num_neighbor_per_level.size());
+    printf("stats on level %d, max %d neighbors per vertex:\n",
+           level,
+           nb_neighbors(level));
+    size_t tot_neigh = 0, tot_common = 0, tot_reciprocal = 0, n_node = 0;
+#pragma omp parallel for reduction(+ : tot_neigh) reduction(+ : tot_common) \
+        reduction(+ : tot_reciprocal) reduction(+ : n_node)
+    for (int i = 0; i < levels.size(); i++) {
+        if (levels[i] > level) {
+            n_node++;
+            size_t begin, end;
+            neighbor_range(i, level, &begin, &end);
+            std::unordered_set<int> neighset;
+            for (size_t j = begin; j < end; j++) {
+                if (neighbors[j] < 0)
+                    break;
+                neighset.insert(neighbors[j]);
+            }
+            int n_neigh = neighset.size();
+            int n_common = 0;
+            int n_reciprocal = 0;
+            for (size_t j = begin; j < end; j++) {
+                storage_idx_t i2 = neighbors[j];
+                if (i2 < 0)
+                    break;
+                assert(i2 != i);
+                size_t begin2, end2;
+                neighbor_range(i2, level, &begin2, &end2);
+                for (size_t j2 = begin2; j2 < end2; j2++) {
+                    storage_idx_t i3 = neighbors[j2];
+                    if (i3 < 0)
+                        break;
+                    if (i3 == i) {
+                        n_reciprocal++;
+                        continue;
+                    }
+                    if (neighset.count(i3)) {
+                        neighset.erase(i3);
+                        n_common++;
+                    }
+                }
+            }
+            tot_neigh += n_neigh;
+            tot_common += n_common;
+            tot_reciprocal += n_reciprocal;
+        }
+    }
+    float normalizer = n_node;
+    printf("   nb of nodes at that level %zd\n", n_node);
+    printf("   neighbors per node: %.2f (%zd)\n",
+           tot_neigh / normalizer,
+           tot_neigh);
+    printf("   nb of reciprocal neighbors: %.2f\n",
+           tot_reciprocal / normalizer);
+    printf("   nb of neighbors that are also neighbor-of-neighbors: %.2f (%zd)\n",
+           tot_common / normalizer,
+           tot_common);
+}
+
 void HNSW::search(
     DistanceComputer& qdis,
     HeapResultHandler& res,
@@ -526,6 +587,7 @@ void search_from_candidates(
         // than d0
 
         int n_dis_below = count_below(previous_poped_distance,d0);
+        std::cout << " n_dis_below, efSearch " << n_dis_below << "," << efSearch << std::endl;
         if (n_dis_below >= efSearch) {
             break;
         }
@@ -545,15 +607,11 @@ void search_from_candidates(
             ndis++;
             float d = qdis(v1);
 
-            if (d < threshold) {
-                if (res.add_result(d, v1)) {
-                    threshold = res.threshold;
-
-                    nres += 1;
-                }
-
+            if (res.add_result(d, v1)) {
+                threshold = res.threshold;
+                nres += 1;
+            } 
             candidates.emplace(d, v1); // add the new candidate into heap
-            }
 
             nstep++;
             if (false && nstep > efSearch) {

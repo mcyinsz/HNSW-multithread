@@ -22,7 +22,7 @@ void hnsw_add_vertices(
 
         int d = index_hnsw.d;
 
-        // std::cout << "  n " << n   << std::endl; //debug
+        
         HNSW& hnsw = index_hnsw.hnsw;
         size_t ntotal = n0 + n;
 
@@ -31,12 +31,11 @@ void hnsw_add_vertices(
         }
 
         int max_level = hnsw.prepare_level_tab(n, preset_levels);
-        // std::cout << "  max_level_tab_prepared " << max_level  << std::endl; //debug
+
         std::vector<omp_lock_t> locks(ntotal);
         for (int i = 0; i < ntotal; i++)
             omp_init_lock(&locks[i]);
 
-        // std::cout << "  omp locks inited "  << std::endl; //debug
 
         // add vectors from highest to lowest level
         std::vector<int> hist;
@@ -67,7 +66,7 @@ void hnsw_add_vertices(
             }
         }
         
-        // std::cout << "  finished bucket sort "  << std::endl; //debug
+
 
         { // perform add
             RandomGenerator rng2(789);
@@ -78,7 +77,7 @@ void hnsw_add_vertices(
                 pt_level >= !index_hnsw.init_level0;
                 pt_level--) {
 
-                // std::cout << " starting add level "<< hist.size()  << std::endl; //debug
+
                 int i0 = i1 - hist[pt_level];
 
                 // random permutation to get rid of dataset order bias
@@ -95,20 +94,18 @@ void hnsw_add_vertices(
 
                     size_t counter = 0;
 
-                    // std::cout << "  init visited table, DistanceComputer and counter "  << std::endl; //debug
 
                     // here we should do schedule(dynamic) but this segfaults for
                     // some versions of LLVM. The performance impact should not be
                     // too large when (i1 - i0) / num_threads >> 1
     #pragma omp for schedule(static)
                     for (int i = i0; i < i1; i++) {
-                        // std::cout << " adding i " << i << "," << i0 << i1 << std::endl; //debug
+
                         storage_idx_t pt_id = order[i];
-                        // std::cout << "  get point id "  << std::endl; //debug
 
                         const float* query_ptr = x.data() + (pt_id - n0) * d;
                         dis->set_query(query_ptr);
-                        // std::cout << "  set query for " << i << std::endl; //debug
+
                         // cannot break
 
                         hnsw.add_with_locks(
@@ -131,10 +128,11 @@ void hnsw_add_vertices(
                 assert((i1 - hist[0]) == 0);
             }
         }
-        // std::cout << "  finish add "  << std::endl; //debug
+
         for (int i = 0; i < ntotal; i++) {
             omp_destroy_lock(&locks[i]);
         }
+
 }
 
 IndexHNSW::IndexHNSW(int d, int M, int metric)
@@ -144,7 +142,7 @@ IndexHNSW::IndexHNSW(int d, int M, int metric)
 void IndexHNSW::add(int n, const std::vector<float>& x) {
     int n0 = ntotal;
     storage->add(n, x);
-    // std::cout << "  adding vectors into storage finished "  << std::endl; //debug
+
     ntotal = storage->ntotal;
 
     hnsw_add_vertices(*this, n0, n, x, hnsw.levels.size() == ntotal);
@@ -194,6 +192,7 @@ void IndexHNSW::search(
     hnsw_search(this, n, x, res_list, Param_efSearch);
 
     for (int i = 0; i < n; ++i) {
+        std::cout << "  Handler k " << res_list[i].k << std::endl;
         auto [distance, index] = res_list[i].end();
         if (metric_type == INNER_PRODUCT) {
             std::transform(distance.begin(), distance.end(), distance.begin(), [](float x) { return -x; }); // the instant function
