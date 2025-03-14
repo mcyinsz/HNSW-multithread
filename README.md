@@ -1,6 +1,8 @@
 # HNSW implementation
 
-enabling parallel build method
+Enabling parallel build method. 
+
+The source code is based on `FAISS` (<https://github.com/facebookresearch/faiss>), but is more simplified.
 
 ## build
 
