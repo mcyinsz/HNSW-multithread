@@ -39,7 +39,7 @@ float calculate_recall(const std::vector<int>& hnsw_labels, const std::vector<in
 int main() {
     // parameter settings
     int d = 128;  // vector dimension
-    int n = 131072;  // vector number
+    int n = 10000;  // vector number
     int n_query = 1;  // query vector number
     int k = 200;  // the kNN's K
 
@@ -112,7 +112,7 @@ int main() {
     // record searching time Flat
     start = std::chrono::high_resolution_clock::now();
     // execute searching
-    index.search(n_query, query_vectors, k, distances, labels, 200);  
+    index.search(n_query, query_vectors, k, distances, labels, 400);  
     end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> elapsed2_flat = end - start;
     index_flat.search(n_query, query_vectors, k, distances_flat, labels_flat);

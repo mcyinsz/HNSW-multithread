@@ -13,8 +13,12 @@ using storage_idx_t = HNSW::storage_idx_t;
 // ============================================
 
 HNSW::HNSW(int M) : rng(12345) {
+    assert(M > 0);
     set_default_probas(M, 1.0 / log(M));
+    offsets.reserve(128000 + 1); // preallocate memory
     offsets.push_back(0);
+    
+    neighbors.reserve(128000 * 2 * M); // preallocate memory for neighbors
 }
 
 void HNSW::reset() {

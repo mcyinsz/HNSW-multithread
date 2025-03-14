@@ -22,8 +22,6 @@ make
 
 ## Performance
 
-* using `std::vector<float>` to add vectors
-
 | dim | n vectors | build time (s)|
 |:---:|:---:|:---:|
 |128|131072|863.373|
@@ -32,3 +30,11 @@ make
 |128|1000|1.1486|
 |1280|1000|2.0724|
 |1280|10000|39.813|
+
+* optimization 1: `#pragma omp for schedule(dynamic)`
+
+| dim | n vectors | build time (s)|
+|:---:|:---:|:---:|
+|128|10000|32.9146|
+|128|5000|15.5586|
+|128|1000|1.4443|

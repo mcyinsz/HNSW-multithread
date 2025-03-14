@@ -95,10 +95,8 @@ void hnsw_add_vertices(
                     size_t counter = 0;
 
 
-                    // here we should do schedule(dynamic) but this segfaults for
-                    // some versions of LLVM. The performance impact should not be
-                    // too large when (i1 - i0) / num_threads >> 1
-    #pragma omp for schedule(static)
+                    // here we should do schedule(dynamic) 
+    #pragma omp for schedule(dynamic)
                     for (int i = i0; i < i1; i++) {
 
                         storage_idx_t pt_id = order[i];
@@ -192,7 +190,6 @@ void IndexHNSW::search(
     hnsw_search(this, n, x, res_list, Param_efSearch);
 
     for (int i = 0; i < n; ++i) {
-        std::cout << "  Handler k " << res_list[i].k << std::endl;
         auto [distance, index] = res_list[i].end();
         if (metric_type == INNER_PRODUCT) {
             std::transform(distance.begin(), distance.end(), distance.begin(), [](float x) { return -x; }); // the instant function
