@@ -2,7 +2,7 @@
 
 Enabling parallel build method. 
 
-The source code is based on `FAISS` (<https://github.com/facebookresearch/faiss>), but is more simplified.
+The source code is based on `FAISS` (<https://github.com/facebookresearch/faiss>), but more simplified for further modification.
 
 ## build
 
