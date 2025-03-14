@@ -36,10 +36,29 @@ float calculate_recall(const std::vector<int>& hnsw_labels, const std::vector<in
     return static_cast<float>(common) / flat_labels.size();
 }
 
+void validate_avx2() {
+    std::vector<float> data = generate_random_vector(256, 0.0f, 1.0f);
+    GenericDistanceComputerL2 dc_orig(data, 256);  // 原始版本
+    GenericDistanceComputerL2_AVX2 dc_simd(data, 256);  // SIMD版本
+    
+    float q[128];
+    std::fill_n(q, 128, 2.0f);
+    dc_orig.set_query(q);
+    dc_simd.set_query(q);
+    
+    assert(dc_orig(0) == dc_simd(0));  // 验证计算结果一致
+    std::cout << "  validation passed "  << std::endl;
+    
+}
+
 int main() {
+
+    // validate avx2 version of distance computer
+    // validate_avx2();
+
     // parameter settings
     int d = 128;  // vector dimension
-    int n = 10000;  // vector number
+    int n = 5000;  // vector number
     int n_query = 1;  // query vector number
     int k = 200;  // the kNN's K
 
@@ -112,7 +131,7 @@ int main() {
     // record searching time Flat
     start = std::chrono::high_resolution_clock::now();
     // execute searching
-    index.search(n_query, query_vectors, k, distances, labels, 400);  
+    index.search(n_query, query_vectors, k, distances, labels, 1000);  
     end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> elapsed2_flat = end - start;
     index_flat.search(n_query, query_vectors, k, distances_flat, labels_flat);
@@ -121,7 +140,6 @@ int main() {
     // output results for first 5 results and recall
     for (int i = 0; i < std::min(5, n_query); ++i) {
         std::cout << "Query " << i << " results:" << std::endl;
-        std::cout << "  Distance size " << distances[i].size() << std::endl;
         // for (int j = 0; j < k; ++j) {
         //     std::cout << "  Distance: " << distances[i][j] << ", Label: " << labels[i][j] << std::endl;
         // }

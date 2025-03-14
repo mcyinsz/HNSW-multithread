@@ -39,9 +39,9 @@ public:
 
     DistanceComputer* get_distance_computer() const {
         if (metric_type == INNER_PRODUCT) {
-            return new GenericDistanceComputerIP(vectors, d);
+            return new GenericDistanceComputerIP_AVX2(vectors, d);
         } else if (metric_type == L2_DISTANCE) {
-            return new GenericDistanceComputerL2(vectors, d);
+            return new GenericDistanceComputerL2_AVX2(vectors, d);
         }
         return nullptr;
     }

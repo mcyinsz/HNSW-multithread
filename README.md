@@ -31,10 +31,11 @@ make
 |1280|1000|2.0724|
 |1280|10000|39.813|
 
-* optimization 1: `#pragma omp for schedule(dynamic)`
+* optimization: using `avx2` ISA to accelerate distance computing
 
 | dim | n vectors | build time (s)|
 |:---:|:---:|:---:|
-|128|10000|32.9146|
-|128|5000|15.5586|
-|128|1000|1.4443|
+|128|100000|160|
+|128|10000|10|
+|128|5000|3.2|
+|128|1000|0.3|

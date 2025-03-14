@@ -3,6 +3,11 @@ project(IndexFlatTest)
 
 set(CMAKE_CXX_STANDARD 17)
 
+# 在CMakeLists.txt中添加以下内容
+add_compile_options(-mavx2 -mfma)
+add_compile_options(-march=native)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mavx2 -mfma")
+
 # Add the source files
 set(SOURCES
     main.cpp
