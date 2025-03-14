@@ -6,7 +6,10 @@ set(CMAKE_CXX_STANDARD 17)
 # 在CMakeLists.txt中添加以下内容
 add_compile_options(-mavx2 -mfma)
 add_compile_options(-march=native)
+add_compile_options(-mavx512f)
+add_compile_options(-mavx512vl)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mavx2 -mfma")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
 
 # Add the source files
 set(SOURCES

@@ -8,8 +8,8 @@
 
 class Index {
 public:
-    int d;  // 向量维度
-    int ntotal;  // 总向量数量
+    int d;  // vector dimension
+    int ntotal;  // total vector number
     bool verbose;
     bool is_trained;
     int metric_type;
@@ -27,7 +27,7 @@ public:
 
 class IndexFlat : public Index {
 public:
-    std::vector<float> vectors;  // 连续内存存储的向量数据
+    std::vector<float> vectors;  // vector data stored in vector structure
 
     IndexFlat(int d = 0, int metric = INNER_PRODUCT) : Index(d, metric) {}
 
@@ -39,9 +39,9 @@ public:
 
     DistanceComputer* get_distance_computer() const {
         if (metric_type == INNER_PRODUCT) {
-            return new GenericDistanceComputerIP_AVX2(vectors, d);
+            return new GenericDistanceComputerIP_AVX512(vectors, d);
         } else if (metric_type == L2_DISTANCE) {
-            return new GenericDistanceComputerL2_AVX2(vectors, d);
+            return new GenericDistanceComputerL2_AVX512(vectors, d);
         }
         return nullptr;
     }

@@ -39,3 +39,13 @@ make
 |128|10000|10|
 |128|5000|3.2|
 |128|1000|0.3|
+
+* optimization 2: using `avx512` ISA to accelerate distance computing
+* optimization 3: add `O3` optimization in `CMakeList.txt`
+
+| dim | n vectors | build time (s)|
+|:---:|:---:|:---:|
+|128|100000|<15|
+|128|10000|<0.9|
+|128|5000|<0.5|
+|128|1000|<0.03|

@@ -22,3 +22,4 @@
     * function: set a vector to be the query vector
     * call: `qdis->set_query(x.data() + i * d);`
 
+## AVX supports

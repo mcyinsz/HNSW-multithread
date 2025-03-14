@@ -36,31 +36,34 @@ float calculate_recall(const std::vector<int>& hnsw_labels, const std::vector<in
     return static_cast<float>(common) / flat_labels.size();
 }
 
-void validate_avx2() {
+void validate_avx() {
     std::vector<float> data = generate_random_vector(256, 0.0f, 1.0f);
     GenericDistanceComputerL2 dc_orig(data, 256);  // 原始版本
     GenericDistanceComputerL2_AVX2 dc_simd(data, 256);  // SIMD版本
+    GenericDistanceComputerL2_AVX512 dc_simd512(data, 256);
     
     float q[128];
     std::fill_n(q, 128, 2.0f);
     dc_orig.set_query(q);
     dc_simd.set_query(q);
+    dc_simd512.set_query(q);
     
     assert(dc_orig(0) == dc_simd(0));  // 验证计算结果一致
+    assert(dc_orig(0) == dc_simd512(0));
     std::cout << "  validation passed "  << std::endl;
     
 }
 
 int main() {
 
-    // validate avx2 version of distance computer
-    // validate_avx2();
+    // validate avx version of distance computer
+    validate_avx();
 
     // parameter settings
     int d = 128;  // vector dimension
-    int n = 5000;  // vector number
+    int n = 131072;  // vector number
     int n_query = 1;  // query vector number
-    int k = 200;  // the kNN's K
+    int k = 2048;  // the kNN's K
 
     // IndexHNSW using metric INNER_PRODUCT
     IndexHNSW index(d, 32, INNER_PRODUCT);
@@ -119,7 +122,7 @@ int main() {
     // record searching time
     start = std::chrono::high_resolution_clock::now();
     // execute searching
-    index.search(n_query, query_vectors, k, distances, labels, 200);
+    index.search(n_query, query_vectors, k, distances, labels, 2048);
     
 
     end = std::chrono::high_resolution_clock::now();
@@ -139,7 +142,7 @@ int main() {
 
     // output results for first 5 results and recall
     for (int i = 0; i < std::min(5, n_query); ++i) {
-        std::cout << "Query " << i << " results:" << std::endl;
+        // std::cout << "Query " << i << " results:" << std::endl;
         // for (int j = 0; j < k; ++j) {
         //     std::cout << "  Distance: " << distances[i][j] << ", Label: " << labels[i][j] << std::endl;
         // }
