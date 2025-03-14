@@ -1,8 +1,12 @@
-# HNSW implementation
+# HNSW Implementation with Enhanced Features
 
-Enabling parallel build method. 
+This project introduces an optimized implementation of the Hierarchical Navigable Small World (HNSW) algorithm, featuring significant improvements in both performance and scalability. The key enhancements include:
 
-The source code is based on `FAISS` (<https://github.com/facebookresearch/faiss>), but more simplified for further modification.
+1. **Parallel Build Method**: The implementation now supports parallel graph construction, enabling faster processing of large datasets.
+
+2. **AVX Optimization**: Leveraging Advanced Vector Extensions (AVX) instructions for improved computational efficiency and faster vector operations.
+
+The codebase is derived from the FAISS library (<https://github.com/facebookresearch/faiss>), but has been significantly streamlined and simplified. 
 
 ## build
 
@@ -45,6 +49,7 @@ make
 
 | dim | n vectors | build time (s)|
 |:---:|:---:|:---:|
+|128|1310720|<250|
 |128|100000|<15|
 |128|10000|<0.9|
 |128|5000|<0.5|

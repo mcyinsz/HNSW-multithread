@@ -37,10 +37,10 @@ float calculate_recall(const std::vector<int>& hnsw_labels, const std::vector<in
 }
 
 void validate_avx() {
-    std::vector<float> data = generate_random_vector(256, 0.0f, 1.0f);
-    GenericDistanceComputerL2 dc_orig(data, 256);  // 原始版本
-    GenericDistanceComputerL2_AVX2 dc_simd(data, 256);  // SIMD版本
-    GenericDistanceComputerL2_AVX512 dc_simd512(data, 256);
+    std::vector<float> data = generate_random_vector(256, -1.0f, 1.0f);
+    GenericDistanceComputerIP dc_orig(data, 256);  // 原始版本
+    GenericDistanceComputerIP_AVX2 dc_simd(data, 256);  // SIMD版本
+    GenericDistanceComputerIP_AVX512 dc_simd512(data, 256);
     
     float q[128];
     std::fill_n(q, 128, 2.0f);
@@ -61,7 +61,7 @@ int main() {
 
     // parameter settings
     int d = 128;  // vector dimension
-    int n = 131072;  // vector number
+    int n = 1310720;  // vector number
     int n_query = 1;  // query vector number
     int k = 2048;  // the kNN's K
 

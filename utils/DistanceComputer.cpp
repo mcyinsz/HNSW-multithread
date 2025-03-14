@@ -5,9 +5,9 @@
 #pragma once
 
 class GenericDistanceComputerIP : public DistanceComputer {
-    int d;  // 向量维度
-    const std::vector<float>& storage;  // 连续内存存储的向量数据
-    const float* q;  // 查询向量的指针
+    int d;  // the vector dimension
+    const std::vector<float>& storage;  // vector storage
+    const float* q;  // the query vector
 
 public:
     GenericDistanceComputerIP(const std::vector<float>& storage, int d) 
@@ -42,9 +42,9 @@ public:
 };
 
 class GenericDistanceComputerL2 : public DistanceComputer {
-    int d;  // 向量维度
-    const std::vector<float>& storage;  // 连续内存存储的向量数据
-    const float* q;  // 查询向量的指针
+    int d;
+    const std::vector<float>& storage;
+    const float* q;
 
 public:
     GenericDistanceComputerL2(const std::vector<float>& storage, int d) 
@@ -105,20 +105,20 @@ class GenericDistanceComputerIP_AVX2 : public DistanceComputer {
         __m256 sum8 = _mm256_setzero_ps();
         int i = 0;
 
-        // AVX并行处理主循环
+        // main loop: AVX parallel
         for (; i + 7 < d; i += 8) {
             __m256 q_vec = _mm256_loadu_ps(q + i);
             __m256 b_vec = _mm256_loadu_ps(base + i);
             sum8 = _mm256_fmadd_ps(q_vec, b_vec, sum8);
         }
 
-        // 处理剩余元素
+        // residue elements
         float sum = hsum256_ps(sum8);
         for (; i < d; ++i) {
             sum += q[i] * base[i];
         }
 
-        return -sum;  // 保持原有符号逻辑
+        return -sum;  // the minus is for distance comparison
     }
 
     float symmetric_dis(int idx_a, int idx_b) override {
@@ -138,7 +138,7 @@ class GenericDistanceComputerIP_AVX2 : public DistanceComputer {
             sum += a[i] * b[i];
         }
 
-        return -sum;  // 保持原有符号逻辑
+        return -sum;
     }
 
     void set_query(const float* x) override {
@@ -165,7 +165,6 @@ class GenericDistanceComputerL2_AVX2 : public DistanceComputer {
         __m256 sum8 = _mm256_setzero_ps();
         int i = 0;
 
-        // AVX并行处理主循环
         for (; i + 7 < d; i += 8) {
             __m256 q_vec = _mm256_loadu_ps(q + i);
             __m256 b_vec = _mm256_loadu_ps(base + i);
@@ -173,14 +172,13 @@ class GenericDistanceComputerL2_AVX2 : public DistanceComputer {
             sum8 = _mm256_fmadd_ps(diff, diff, sum8);
         }
 
-        // 处理剩余元素
         float sum = hsum256_ps(sum8);
         for (; i < d; ++i) {
             float diff = q[i] - base[i];
             sum += diff * diff;
         }
 
-        return std::sqrt(sum);  // 保持原有平方根计算
+        return std::sqrt(sum);
     }
 
     float symmetric_dis(int idx_a, int idx_b) override {
@@ -202,7 +200,7 @@ class GenericDistanceComputerL2_AVX2 : public DistanceComputer {
             sum += diff * diff;
         }
 
-        return std::sqrt(sum);  // 保持原有平方根计算
+        return std::sqrt(sum); 
     }
 
     void set_query(const float* x) override {
@@ -215,7 +213,7 @@ class GenericDistanceComputerL2_AVX2 : public DistanceComputer {
 };
 
 
-// AVX512 水平求和
+// AVX512 horizenal sum
 inline float hsum512_ps(__m512 v) {
     __m256 v256 = _mm256_add_ps(_mm512_extractf32x8_ps(v, 1), _mm512_castps512_ps256(v));
     __m128 v128 = _mm_add_ps(_mm256_extractf128_ps(v256, 1), _mm256_castps256_ps128(v256));
@@ -240,14 +238,14 @@ public:
         __m512 sum16 = _mm512_setzero_ps();
         int i = 0;
 
-        // AVX512主循环（16元素/迭代）
+        // AVX512 main loop
         for (; i + 15 < d; i += 16) {
             __m512 q_vec = _mm512_loadu_ps(q + i);
             __m512 b_vec = _mm512_loadu_ps(base + i);
             sum16 = _mm512_fmadd_ps(q_vec, b_vec, sum16);
         }
 
-        // 处理剩余元素
+        // residue elements
         float sum = hsum512_ps(sum16);
         for (; i < d; ++i) sum += q[i] * base[i];
 
@@ -289,7 +287,7 @@ public:
         __m512 sum16 = _mm512_setzero_ps();
         int i = 0;
 
-        // AVX512主循环
+        // AVX512 main loop
         for (; i + 15 < d; i += 16) {
             __m512 q_vec = _mm512_loadu_ps(q + i);
             __m512 b_vec = _mm512_loadu_ps(base + i);
@@ -297,7 +295,7 @@ public:
             sum16 = _mm512_fmadd_ps(diff, diff, sum16);
         }
 
-        // 处理剩余元素
+        // residue elements
         float sum = hsum512_ps(sum16);
         for (; i < d; ++i) {
             float diff = q[i] - base[i];
