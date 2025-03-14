@@ -587,7 +587,6 @@ void search_from_candidates(
         // than d0
 
         int n_dis_below = count_below(previous_poped_distance,d0);
-        std::cout << " n_dis_below, efSearch " << n_dis_below << "," << efSearch << std::endl;
         if (n_dis_below >= efSearch) {
             break;
         }
