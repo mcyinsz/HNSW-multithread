@@ -37,7 +37,7 @@ float calculate_recall(const std::vector<int>& hnsw_labels, const std::vector<in
 }
 
 void validate_avx() {
-    std::vector<float> data = generate_random_vector(256, -1.0f, 1.0f);
+    std::vector<float> data = generate_random_vector(256, -3.0f, 3.0f);
     GenericDistanceComputerIP dc_orig(data, 256);  // 原始版本
     GenericDistanceComputerIP_AVX2 dc_simd(data, 256);  // SIMD版本
     GenericDistanceComputerIP_AVX512 dc_simd512(data, 256);
@@ -60,13 +60,15 @@ int main() {
     validate_avx();
 
     // parameter settings
-    int d = 1280;  // vector dimension
-    int n = 10000;  // vector number
+    int d = 128;  // vector dimension
+    int n = 131072;  // vector number
     int n_query = 1;  // query vector number
-    int k = 2048;  // the kNN's K
+    int k = 128;  // the kNN's K
+    int efConst = 24;
 
     // IndexHNSW using metric INNER_PRODUCT
-    IndexHNSW index(d, 32, INNER_PRODUCT);
+    IndexHNSW index(d, 24, INNER_PRODUCT);
+    index.hnsw.efConstruction = efConst;
 
     // Flat index for reference
     IndexFlat index_flat(d, INNER_PRODUCT);
@@ -74,7 +76,7 @@ int main() {
     // generate random vectors and add them into index
     std::vector<float> vectors;
     for (int i = 0; i < n; ++i) {
-        auto vec = generate_random_vector(d, 0.0f, 1.0f);
+        auto vec = generate_random_vector(d, -3.0f, 3.0f);
         vectors.insert(vectors.end(), vec.begin(), vec.end());
     }
     
@@ -104,7 +106,7 @@ int main() {
     // generate random query vectors
     std::vector<float> query_vectors;
     for (int i = 0; i < n_query; ++i) {
-        auto vec = generate_random_vector(d, 0.0f, 1.0f);
+        auto vec = generate_random_vector(d, -3.0f, 3.0f);
         query_vectors.insert(query_vectors.end(), vec.begin(), vec.end());
     }
 
@@ -122,7 +124,7 @@ int main() {
     // record searching time
     start = std::chrono::high_resolution_clock::now();
     // execute searching
-    index.search(n_query, query_vectors, k, distances, labels, 2048);
+    index.search(n_query, query_vectors, k, distances, labels, 1280);
     
 
     end = std::chrono::high_resolution_clock::now();
