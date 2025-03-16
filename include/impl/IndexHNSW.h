@@ -1,9 +1,9 @@
 #pragma once
 
 #include <vector>
-#include <include/utils/Index.h>
-#include <include/impl/HNSW.h>
-#include <include/utils/constants.h>
+#include <utils/Index.h>
+#include <impl/HNSW.h>
+#include <utils/constants.h>
 
 class IndexHNSW: public Index{
     typedef HNSW::storage_idx_t storage_idx_t;
@@ -22,8 +22,8 @@ class IndexHNSW: public Index{
         // reach the degree limit in graph level 0
         bool keep_max_size_level0 = false;
 
-        explicit IndexHNSW(int d = 0, int M = 32, int metric = INNER_PRODUCT);
-        explicit IndexHNSW(Index* storage, int M = 32);
+        explicit IndexHNSW(int d = 0, int M = 32, MetricType metric = INNER_PRODUCT);
+        // explicit IndexHNSW(Index* storage, int M = 32);
 
         // ~IndexHNSW() override;
 
@@ -35,6 +35,6 @@ class IndexHNSW: public Index{
                         std::vector<std::vector<int>>& labels,
                         int Param_efSearch) override;
 
-        void reset();
+        // void reset();
 
 };

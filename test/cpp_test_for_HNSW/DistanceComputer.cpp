@@ -1,7 +1,7 @@
 #include <immintrin.h>
 #include <vector>
 #include <cmath>
-#include "include/utils/DistanceComputer.h"
+#include "utils/DistanceComputer.h"
 #pragma once
 
 class GenericDistanceComputerIP : public DistanceComputer {

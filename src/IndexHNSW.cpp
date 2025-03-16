@@ -1,9 +1,9 @@
-#include <include/impl/IndexHNSW.h>
-#include <include/utils/DistanceComputer.h>
-#include <include/utils/Index.h>
+#include <impl/IndexHNSW.h>
+#include <utils/DistanceComputer.h>
+#include <utils/Index.h>
 #include <vector>
 #include <memory>
-#include <include/utils/ResultHandler.h>
+#include <utils/ResultHandler.h>
 
 #include <omp.h>
 
@@ -133,7 +133,7 @@ void hnsw_add_vertices(
 
 }
 
-IndexHNSW::IndexHNSW(int d, int M, int metric)
+IndexHNSW::IndexHNSW(int d, int M, MetricType metric)
         : Index(d, metric), hnsw(M), storage(new IndexFlat(d, metric)) {}
 
 

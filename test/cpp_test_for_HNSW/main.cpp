@@ -3,8 +3,8 @@
 #include <chrono>
 #include <random>
 #include <unordered_set>
-#include "include/utils/Index.h"
-#include <include/impl/IndexHNSW.h>
+#include "utils/Index.h"
+#include <impl/IndexHNSW.h>
 #include <algorithm>
 
 // generate random float number
@@ -37,7 +37,7 @@ float calculate_recall(const std::vector<int>& hnsw_labels, const std::vector<in
 }
 
 void validate_avx() {
-    std::vector<float> data = generate_random_vector(256, -3.0f, 3.0f);
+    std::vector<float> data = generate_random_vector(256, 0.0f, 1.0f);
     GenericDistanceComputerIP dc_orig(data, 256);  // 原始版本
     GenericDistanceComputerIP_AVX2 dc_simd(data, 256);  // SIMD版本
     GenericDistanceComputerIP_AVX512 dc_simd512(data, 256);
@@ -106,7 +106,7 @@ int main() {
     // generate random query vectors
     std::vector<float> query_vectors;
     for (int i = 0; i < n_query; ++i) {
-        auto vec = generate_random_vector(d, -3.0f, 3.0f);
+        auto vec = generate_random_vector(d, 0.0f, 1.0f);
         query_vectors.insert(query_vectors.end(), vec.begin(), vec.end());
     }
 

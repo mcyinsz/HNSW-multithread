@@ -1,39 +1,55 @@
-cmake_minimum_required(VERSION 3.10)
-project(IndexFlatTest)
+cmake_minimum_required(VERSION 3.15)
+project(index_hnsw_py LANGUAGES CXX)
 
+# 设置编译选项
 set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+add_compile_options(-mavx2 -mfma -march=native -O3 -ffast-math)
 
-# 在CMakeLists.txt中添加以下内容
-add_compile_options(-mavx2 -mfma)
-add_compile_options(-march=native)
-add_compile_options(-mavx512f)
-add_compile_options(-mavx512vl)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mavx2 -mfma")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
+# 获取pybind11
+include(FetchContent)
+FetchContent_Declare(
+  pybind11
+  GIT_REPOSITORY https://github.com/pybind/pybind11.git
+  GIT_TAG v2.10.0
+)
+FetchContent_MakeAvailable(pybind11)
 
-# Add the source files
-set(SOURCES
-    main.cpp
-    include/utils/Index.h
-    include/utils/DistanceComputer.h
-    include/utils/ResultHandler.h
-    include/impl/HNSW.h
-    include/impl/IndexHNSW.h
-    include/impl/NodeDist.h
-    src/HNSW.cpp
-    src/IndexHNSW.cpp
-    include/utils/RandomGenerator.h
-    src/RandomGenerator.cpp
+# 源文件配置
+file(GLOB_RECURSE SOURCE_FILES
+    "src/*.cpp"
+    "python/bindings.cpp"
 )
 
-# Add the executable
-add_executable(IndexFlatTest ${SOURCES})
+# 创建共享库
+add_library(index_hnsw_py SHARED ${SOURCE_FILES})
 
-# Include directories if needed
-include_directories(${CMAKE_SOURCE_DIR})
+set_target_properties(index_hnsw_py PROPERTIES 
+    PREFIX "" 
+    SUFFIX ".so"
+)
 
-# Link OpenMP
+# 包含目录
+target_include_directories(index_hnsw_py 
+    PRIVATE 
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+        ${pybind11_INCLUDE_DIRS}
+)
+
+# 链接库
+target_link_libraries(index_hnsw_py
+    PRIVATE
+    pybind11::module
+)
+
+# OpenMP支持
 find_package(OpenMP REQUIRED)
-if (OpenMP_CXX_FOUND)
-    target_link_libraries(IndexFlatTest PRIVATE OpenMP::OpenMP_CXX)
+if(OpenMP_CXX_FOUND)
+    target_link_libraries(index_hnsw_py PRIVATE OpenMP::OpenMP_CXX)
 endif()
+
+# 设置输出目录
+set_target_properties(index_hnsw_py PROPERTIES 
+    LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/python
+    SUFFIX ".so"
+)

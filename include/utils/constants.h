@@ -7,5 +7,7 @@
 #include <iostream>
 #pragma once
 
-const int INNER_PRODUCT = 0;
-const int L2_DISTANCE = 1;
+enum MetricType {
+    INNER_PRODUCT = 0,
+    L2_DISTANCE = 1
+};

@@ -1,9 +1,10 @@
 #include <vector>
-#include <include/utils/constants.h>
-#include <include/utils/DistanceComputer.h>
+#include <utils/constants.h>
+#include <utils/DistanceComputer.h>
 #include <cassert>
-#include <include/utils/ResultHandler.h>
-#include <src/DistanceComputer.cpp>
+#include <utils/ResultHandler.h>
+#include <stdexcept> 
+// #include <DistanceComputer.cpp>
 #pragma once
 
 class Index {
@@ -12,9 +13,10 @@ public:
     int ntotal;  // total vector number
     bool verbose;
     bool is_trained;
-    int metric_type;
+    // int metric_type;
+    MetricType metric_type;
 
-    Index(int d = 0, int metric = INNER_PRODUCT) 
+    Index(int d = 0, MetricType metric = INNER_PRODUCT) 
         : d(d), ntotal(0), verbose(false), is_trained(true), metric_type(metric) {}
 
     virtual void add(int n, const std::vector<float>& x) = 0;
@@ -29,7 +31,7 @@ class IndexFlat : public Index {
 public:
     std::vector<float> vectors;  // vector data stored in vector structure
 
-    IndexFlat(int d = 0, int metric = INNER_PRODUCT) : Index(d, metric) {}
+    IndexFlat(int d = 0, MetricType metric = INNER_PRODUCT) : Index(d, metric) {}
 
     void add(int n, const std::vector<float>& x) override {
         assert(x.size() == n * d);
