@@ -56,3 +56,12 @@ make
 |128|1000|<0.03|
 |1280|100000|<80|
 |1280|10000|<6|
+
+## Recall
+
+* degree limit for level > 0: 64
+* degree limit for level = 0: 32
+* build beam search width: 40
+* dataset size: 500k
+
+![](pics\test_IndexHNSW_recall_dim128_size500000_normal1.csv.png)
