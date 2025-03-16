@@ -1,9 +1,9 @@
 #pragma once
 
 #include <vector>
-#include <utils/Index.h>
-#include <impl/HNSW.h>
-#include <utils/constants.h>
+#include <include/utils/Index.h>
+#include <include/impl/HNSW.h>
+#include <include/utils/constants.h>
 
 class IndexHNSW: public Index{
     typedef HNSW::storage_idx_t storage_idx_t;

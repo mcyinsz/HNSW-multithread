@@ -14,16 +14,16 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
 # Add the source files
 set(SOURCES
     main.cpp
-    utils/Index.h
-    utils/DistanceComputer.h
-    utils/ResultHandler.h
-    impl/HNSW.h
-    impl/IndexHNSW.h
-    impl/NodeDist.h
-    impl/HNSW.cpp
-    impl/IndexHNSW.cpp
-    utils/RandomGenerator.h
-    utils/RandomGenerator.cpp
+    include/utils/Index.h
+    include/utils/DistanceComputer.h
+    include/utils/ResultHandler.h
+    include/impl/HNSW.h
+    include/impl/IndexHNSW.h
+    include/impl/NodeDist.h
+    src/HNSW.cpp
+    src/IndexHNSW.cpp
+    include/utils/RandomGenerator.h
+    src/RandomGenerator.cpp
 )
 
 # Add the executable

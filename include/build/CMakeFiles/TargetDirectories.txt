@@ -1,3 +1,0 @@
-/home/mcyinsz/HNSW-multithread/include/build/CMakeFiles/IndexFlatTest.dir
-/home/mcyinsz/HNSW-multithread/include/build/CMakeFiles/edit_cache.dir
-/home/mcyinsz/HNSW-multithread/include/build/CMakeFiles/rebuild_cache.dir

@@ -3,8 +3,8 @@
 #include <chrono>
 #include <random>
 #include <unordered_set>
-#include "utils/Index.h"
-#include <impl/IndexHNSW.h>
+#include "include/utils/Index.h"
+#include <include/impl/IndexHNSW.h>
 #include <algorithm>
 
 // generate random float number
@@ -61,10 +61,10 @@ int main() {
 
     // parameter settings
     int d = 128;  // vector dimension
-    int n = 131072;  // vector number
+    int n = 131000;  // vector number
     int n_query = 1;  // query vector number
-    int k = 128;  // the kNN's K
-    int efConst = 24;
+    int k = 2048;  // the kNN's K
+    int efConst = 32;
 
     // IndexHNSW using metric INNER_PRODUCT
     IndexHNSW index(d, 24, INNER_PRODUCT);
@@ -124,7 +124,7 @@ int main() {
     // record searching time
     start = std::chrono::high_resolution_clock::now();
     // execute searching
-    index.search(n_query, query_vectors, k, distances, labels, 1280);
+    index.search(n_query, query_vectors, k, distances, labels, k);
     
 
     end = std::chrono::high_resolution_clock::now();

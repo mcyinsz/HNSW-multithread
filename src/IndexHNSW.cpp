@@ -1,9 +1,9 @@
-#include <impl/IndexHNSW.h>
-#include <utils/DistanceComputer.h>
-#include <utils/Index.h>
+#include <include/impl/IndexHNSW.h>
+#include <include/utils/DistanceComputer.h>
+#include <include/utils/Index.h>
 #include <vector>
 #include <memory>
-#include <utils/ResultHandler.h>
+#include <include/utils/ResultHandler.h>
 
 #include <omp.h>
 

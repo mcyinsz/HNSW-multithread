@@ -3,13 +3,13 @@
 
 #include <string>  // 包含必要的头文件
 #include <vector>
-#include <utils/RandomGenerator.h>
+#include <include/utils/RandomGenerator.h>
 #include <omp.h>
-#include <utils/DistanceComputer.h>
-#include <utils/VisitedTable.h>
-#include <impl/NodeDist.h>
+#include <include/utils/DistanceComputer.h>
+#include <include/utils/VisitedTable.h>
+#include <include/impl/NodeDist.h>
 #include <queue>
-#include <utils/ResultHandler.h>
+#include <include/utils/ResultHandler.h>
 
 class HNSW {
 public:

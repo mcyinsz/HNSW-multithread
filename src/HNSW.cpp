@@ -1,6 +1,6 @@
-#include <impl/HNSW.h>
-#include <impl/NodeDist.h>
-#include <utils/ResultHandler.h>
+#include <include/impl/HNSW.h>
+#include <include/impl/NodeDist.h>
+#include <include/utils/ResultHandler.h>
 #include <cassert>
 #include <cmath>
 #include <omp.h>
