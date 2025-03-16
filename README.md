@@ -59,9 +59,17 @@ make
 
 ## Recall
 
+Using `/test/test_python/test_recall_indexHNSW.py` to test the HNSW accuracy on different vector datasets.
+
 * degree limit for level > 0: 64
 * degree limit for level = 0: 32
 * build beam search width: 40
 * dataset size: 500k
 
-![](pics\test_IndexHNSW_recall_dim128_size500000_normal1.csv.png)
+![Recall test](pics/test_IndexHNSW_recall_dim128_size500000_normal1.csv.png)
+
+## Align with FAISS
+
+The HNSW has similar recall as FAISS in normalized datasets, while the recall for unnormalized datasets is much higher.
+
+![Align with FAISS](/pics/Align_with_FAISS.png)

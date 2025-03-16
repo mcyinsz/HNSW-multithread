@@ -93,16 +93,9 @@ def test_on_a_certain_IndexHNSW(vector_dim,
                                  "efSearch":efSearch,
                                  "mean_recall": mean_rc,
                                  "data_format":data_format})
-            # print(list_of_dict)
     
     df = pd.DataFrame(list_of_dict)
     df.to_csv(os.path.join(os.path.dirname(__file__),f"test_IndexHNSW_recall_dim{vector_dim}_size{dataset_size}_normal{1 if test_instance.normalize_vector else 0}.csv"))
-
-    # for k in k_list:
-    #     df[df["k"]==k].plot(kind='scatter', 
-    #     x="efSearch", 
-    #     y="mean_recall")
-    #     plt.show()
 
 
     
