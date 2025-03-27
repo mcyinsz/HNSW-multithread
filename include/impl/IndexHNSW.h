@@ -25,7 +25,7 @@ class IndexHNSW: public Index{
         explicit IndexHNSW(int d = 0, int M = 32, MetricType metric = INNER_PRODUCT);
         // explicit IndexHNSW(Index* storage, int M = 32);
 
-        // ~IndexHNSW() override;
+        ~IndexHNSW() override;
 
         void add(int n, const std::vector<float>& x) override; // the type is different from FAISS
 

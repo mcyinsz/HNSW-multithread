@@ -96,7 +96,7 @@ void hnsw_add_vertices(
 
 
                     // here we should do schedule(dynamic) 
-    #pragma omp for schedule(dynamic)
+    #pragma omp for schedule(static)
                     for (int i = i0; i < i1; i++) {
 
                         storage_idx_t pt_id = order[i];
@@ -199,4 +199,11 @@ void IndexHNSW::search(
     }
 
 
+}
+
+IndexHNSW::~IndexHNSW() {
+    if (storage != nullptr) {
+        delete storage;
+        storage = nullptr;
+    }
 }
