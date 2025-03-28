@@ -103,7 +103,7 @@ def test_on_a_certain_IndexHNSW(vector_dim,
 if __name__ == "__main__":
     for ds in [1000,5000, 10000, 50000, 100000, 500000]:
         for dim in [128]:
-            for normalize_vector in [False]:
+            for normalize_vector in [True]:
                 test_on_a_certain_IndexHNSW(vector_dim=dim,
                                             dataset_size = ds,
                                             normalize_vector=normalize_vector,

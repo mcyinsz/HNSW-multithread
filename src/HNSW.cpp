@@ -4,6 +4,7 @@
 #include <cassert>
 #include <cmath>
 #include <omp.h>
+#include <set>
 #include <unordered_set>
 
 using storage_idx_t = HNSW::storage_idx_t;
@@ -34,14 +35,8 @@ void HNSW::reset() {
  * assissant functions
  **************************************************************/
 
- int count_below(const std::vector<float>& previous_vectors, float d0) {
-    int sum = 0;
-    for (int i=0; i < previous_vectors.size(); i++){
-        if (previous_vectors[i] < d0){
-            sum ++;
-        }
-    }
-    return sum;
+int count_below(const std::multiset<float>& previous_poped_distance,float d0) {
+    return std::distance(previous_poped_distance.begin(), previous_poped_distance.lower_bound(d0));
 }
 
 // ============================================
@@ -557,7 +552,8 @@ void search_from_candidates(
     std::priority_queue<NodeDistFarther> candidates;
 
     // init the previous distances list
-    std::vector<float> previous_poped_distance;
+    // std::vector<float> previous_poped_distance;
+    std::multiset<float> previous_poped_distance;
 
     // add candidates into result handler
     for (int i = 0; i < vec_candidates.size(); i++) {
@@ -572,7 +568,7 @@ void search_from_candidates(
         }
 
         candidates.push(vec_candidates[i]); // push candidate into heap
-        previous_poped_distance.push_back(d);
+        previous_poped_distance.insert(d);
 
         vt.set(v1);
     }
@@ -585,7 +581,7 @@ void search_from_candidates(
         float d0 = candidates.top().d;
 
         candidates.pop();
-        previous_poped_distance.push_back(d0);
+        previous_poped_distance.insert(d0);
         // tricky stopping condition: there are more that ef
         // distances that are processed already that are smaller
         // than d0

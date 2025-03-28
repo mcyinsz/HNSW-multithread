@@ -11,6 +11,7 @@
 #include <queue>
 #include <utils/ResultHandler.h>
 #include <stdexcept> 
+#include <set>
 
 class HNSW {
 public:
@@ -105,7 +106,7 @@ public:
         storage_idx_t& nearest,
         float& d_nearest);
 
-    friend int count_below(const std::vector<float>& previous_vectors, float d0);
+    friend int count_below(const std::multiset<float>& previous_poped_distance, float d0);
 
     friend void search_from_candidates(
         const HNSW& hnsw,

@@ -96,7 +96,7 @@ void hnsw_add_vertices(
 
 
                     // here we should do schedule(dynamic) 
-    #pragma omp for schedule(static)
+    #pragma omp for schedule(dynamic)
                     for (int i = i0; i < i1; i++) {
 
                         storage_idx_t pt_id = order[i];
@@ -156,10 +156,12 @@ void hnsw_search(
     const HNSW& hnsw = index->hnsw;
 
     int efSearch = Param_efSearch;
-
-    std::unique_ptr<DistanceComputer> dis(storage_distance_computer(index->storage));
     
+    #pragma omp parallel for schedule(static) // parallel searching
     for (int query_number = 0; query_number < n; query_number ++){
+    
+        std::unique_ptr<DistanceComputer> dis(storage_distance_computer(index->storage));
+
         VisitedTable vt(index->ntotal);
         HeapResultHandler& res = bres[query_number]; // citation! not duplication!
 
@@ -197,7 +199,6 @@ void IndexHNSW::search(
         distances.push_back(distance);
         labels.push_back(index);
     }
-
 
 }
 
