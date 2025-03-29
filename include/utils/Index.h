@@ -4,6 +4,7 @@
 #include <cassert>
 #include <utils/ResultHandler.h>
 #include <stdexcept> 
+#include <omp.h>
 // #include <DistanceComputer.cpp>
 #pragma once
 
@@ -55,13 +56,15 @@ public:
 
 
         std::vector<HeapResultHandler> res_list(n, HeapResultHandler(k));
-        DistanceComputer* qdis = get_distance_computer();
 
-        if (qdis == nullptr) {
-            throw std::runtime_error("Distance computer is not initialized");
-        }
-
+        #pragma omp parallel for schedule(static) // parallel searching
         for (int i = 0; i < n; ++i) {
+
+            DistanceComputer* qdis = get_distance_computer();
+
+            if (qdis == nullptr) {
+                throw std::runtime_error("Distance computer is not initialized");
+            }
             
             const float* query_ptr = x.data() + i * d; // set the ith query vector to be the query of the distance computer
             qdis->set_query(query_ptr);
@@ -70,6 +73,8 @@ public:
                 float distance = (*qdis)(index);
                 res_list[i].add_result(distance, index);
             }
+
+            delete qdis;
         }
 
         for (int i = 0; i < n; ++i) {
@@ -81,6 +86,6 @@ public:
             labels.push_back(index);
         }
 
-        delete qdis;
+        
     }
 };
