@@ -23,7 +23,7 @@ import numpy as np
 d = 128
 n_data = 131072
 n_query = 1
-normalized = 1
+normalized = 0
 # np.random.seed(124)
 def normalize(x):
     if normalized:
