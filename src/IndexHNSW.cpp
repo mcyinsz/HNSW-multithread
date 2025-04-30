@@ -156,6 +156,8 @@ void hnsw_search(
     const HNSW& hnsw = index->hnsw;
 
     int efSearch = Param_efSearch;
+
+    size_t n1 = 0, n2 = 0, ndis = 0, nhops = 0; // search probe varients
     
     #pragma omp parallel for schedule(static) // parallel searching
     for (int query_number = 0; query_number < n; query_number ++){
@@ -168,7 +170,15 @@ void hnsw_search(
         const float* query_ptr = x.data() + query_number * (index->d);
         dis->set_query(query_ptr);
 
-        hnsw.search(*dis, res, vt, Param_efSearch);
+        HNSWStats search_stats 
+            = hnsw.search(*dis, res, vt, Param_efSearch);
+
+        // print search stats (probe)
+        // std::cout << "n1: " << search_stats.n1 << "\n"
+        //       << "n2: " << search_stats.n2 << "\n"
+        //       << "ndis: " << search_stats.ndis << "\n"
+        //       << "nhops: " << search_stats.nhops << std::endl;
+        
     }
 }
 

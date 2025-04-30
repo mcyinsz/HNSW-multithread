@@ -402,12 +402,15 @@ void HNSW::add_links_starting_from(
  * Searching
  **************************************************************/
 
-void greedy_update_nearest(
+HNSWStats greedy_update_nearest(
     const HNSW& hnsw,
     DistanceComputer& qdis,
     int level,
     storage_idx_t& nearest,
     float& d_nearest) {
+
+    // initialize probe stats (probe)
+    HNSWStats stats;
 
     for (;;) {
         storage_idx_t prev_nearest = nearest;
@@ -415,6 +418,7 @@ void greedy_update_nearest(
         size_t begin, end;
         hnsw.neighbor_range(nearest, level, &begin, &end);
 
+        // the distance number for the current node's neighbors (probe)
         size_t ndis = 0;
 
         for (size_t i = begin; i < end; i++) {
@@ -429,9 +433,16 @@ void greedy_update_nearest(
             }
         }
 
+        // update stats (probe)
+        // one greedy walk step brings one hop number
+        stats.ndis += ndis;
+        stats.nhops += 1;
+
+        // greedy stop strategy
         if (nearest == prev_nearest) {
-            return;
+            return stats;
         }
+
     }
 }
 
@@ -495,17 +506,21 @@ void HNSW::print_neighbor_stats(int level) const {
            tot_common);
 }
 
-void HNSW::search(
+HNSWStats HNSW::search(
     DistanceComputer& qdis,
     HeapResultHandler& res,
     VisitedTable& vt,
     int Param_efSearch) const {
+    
+    // initialize HNSW
+    HNSWStats stats;
 
     // empty HNSW
     if (entry_point == -1) {
-        return;
+        return stats;
     }
 
+    // get kNN's corresponding k
     int k = res.k;
 
     //  greedy search on upper levels
@@ -513,8 +528,22 @@ void HNSW::search(
     float d_nearest = qdis(nearest);
 
     for (int level = max_level; level >= 1; level--) {
-        greedy_update_nearest(*this, qdis, level, nearest, d_nearest);
-    }
+
+        // the greedy search on each level
+        HNSWStats local_stats = 
+            greedy_update_nearest(*this, qdis, level, nearest, d_nearest);
+
+        // merge level's stats with main stats
+        stats.combine(local_stats);
+
+        // probe for once
+        // std::cout << "level: " << level << "\t"
+        //       << "ndis: " << local_stats.ndis << "\t"
+        //       << "nhops: " << local_stats.nhops << "\t"
+        //       << "cur ndis: " << stats.ndis << "\t"
+        //       << "cur hop: " << stats.nhops << "\t" <<
+        //       std::endl;
+        }
 
     // int ef = std::max(params ? params->efSearch : efSearch, k);
 
@@ -525,23 +554,28 @@ void HNSW::search(
     vec_candidates.push_back(nearest_node);
 
     search_from_candidates(
-            *this, qdis, res, vec_candidates, vt, 0, 0, Param_efSearch);
+            *this, qdis, res, vec_candidates, vt, stats, 0, 0, Param_efSearch);
     vt.advance();
 
-    return;
+    return stats;
 }
 
-void search_from_candidates(
+int search_from_candidates(
     const HNSW& hnsw,
     DistanceComputer& qdis,
     HeapResultHandler& res,
     std::vector<NodeDistFarther>& vec_candidates, // attention, the data structure is changed to std::vector
     VisitedTable& vt,
+    HNSWStats& stats,
     int level,
     int nres_in,
     int Param_efSearch) {
+
+    // the result handler's result number
     int nres = nres_in;
-    int ndis = 0;
+
+    // initialize distance calculate time (probe)
+    size_t ndis = 0;
 
     // can be overridden by search params
     int efSearch = Param_efSearch;
@@ -573,7 +607,8 @@ void search_from_candidates(
         vt.set(v1);
     }
 
-    int nstep = 0;
+    // initialize hop time (probe)
+    size_t nstep = 0;
 
     while (candidates.size() > 0) {
         
@@ -591,32 +626,57 @@ void search_from_candidates(
             break;
         }
 
+        // start search in current candidate's neighbors
         size_t begin, end;
         
         hnsw.neighbor_range(v0, level, &begin, &end);
         for (size_t j = begin; j < end; j++) {
             int v1 = hnsw.neighbors[j];
-
             if (v1 < 0)
                 break;
             if (vt.get(v1)) {
                 continue;
             }
             vt.set(v1);
+
+            // calculate distance once (probe)
             ndis++;
             float d = qdis(v1);
-
+            
+            // try to add result into the result handler
             if (res.add_result(d, v1)) {
                 threshold = res.threshold;
                 nres += 1;
             } 
             candidates.emplace(d, v1); // add the new candidate into heap
-
-            nstep++;
-            if (false && nstep > efSearch) {
-                break;
-            }
         }
+
+        // add one hop
+        nstep++;
+        // if (nstep > efSearch) {
+        //     break;
+        // }
     }
+
+    // update probe state
+    if (level == 0) {
+
+        // have searched one vector (probe)
+        stats.n1++;
+
+        // add one empty candidate queue vector (probe)
+        // good for detect unconnected nodes
+        if (candidates.size() == 0){
+            stats.n2 ++;
+        }
+
+        // update calculated distances (probe)
+        stats.ndis += ndis;
+
+        // update hop number (probe)
+        stats.nhops += nstep;
+    }
+
+    return nres;
 }
 

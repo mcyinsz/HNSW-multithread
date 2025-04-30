@@ -13,6 +13,26 @@
 #include <stdexcept> 
 #include <set>
 
+struct HNSWStats {
+    size_t n1 = 0; // the searched vector number
+    size_t n2 = 0; // the query vectors number with empty candidate list
+    size_t ndis = 0; // distance calculation time
+    size_t nhops = 0; // hop number
+
+    void reset() {
+        n1 = n2 = 0;
+        ndis = 0;
+        nhops = 0;
+    }
+
+    void combine(const HNSWStats& other) {
+        n1 += other.n1;
+        n2 += other.n2;
+        ndis += other.ndis;
+        nhops += other.nhops;
+    }
+};
+
 class HNSW {
 public:
     using storage_idx_t = int32_t;
@@ -83,7 +103,7 @@ public:
     // for search on HNSW structure
     // ============================================
 
-    void search(
+    HNSWStats search(
         DistanceComputer& qdis,
         HeapResultHandler& res, // different from FAISS, the result handler would only store the small distance
         VisitedTable&  vt,
@@ -99,7 +119,7 @@ public:
         bool keep_max_size_level0 = false);
 
     // functional functions
-    friend void greedy_update_nearest(
+    friend HNSWStats greedy_update_nearest(
         const HNSW& hnsw,
         DistanceComputer& qdis,
         int level,
@@ -108,12 +128,13 @@ public:
 
     friend int count_below(const std::multiset<float>& previous_poped_distance, float d0);
 
-    friend void search_from_candidates(
+    friend int search_from_candidates(
         const HNSW& hnsw,
         DistanceComputer& qdis,
         HeapResultHandler& res,
         std::vector<NodeDistFarther>& vec_candidates, // attention, the data structure is changed to std::vector
         VisitedTable& vt,
+        HNSWStats& stats,
         int level,
         int nres_in,
         int Param_efSearch);

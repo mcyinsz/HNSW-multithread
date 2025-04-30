@@ -23,7 +23,7 @@ import numpy as np
 d = 128
 n_data = 131072
 n_query = 1
-normalized = 0
+normalized = 1
 # np.random.seed(124)
 def normalize(x):
     if normalized:
@@ -42,18 +42,18 @@ np.random.seed(seed)
 
 
 # FAISS build graph
-index_hnsw = faiss.IndexHNSWFlat(d, 32)
+index_hnsw = faiss.IndexHNSWFlat(d, 20)
 index_hnsw.hnsw.metric_type = faiss.IndexFlatIP(d)
 index_hnsw.add(np.array(database_vectors))
 
 # Manil HNSW build graph
-index_hnsw_manul = ih.IndexHNSW(d,M=32, metric=ih.MetricType.INNER_PRODUCT)
+index_hnsw_manul = ih.IndexHNSW(d,M=20, metric=ih.MetricType.INNER_PRODUCT)
 index_hnsw_manul.add(database_vectors)
 
 
 # scan k's and efsearch's
-k_list = [128, 256, 512, 1024, 2048]
-efsearch_list = [128,256,512,1024,2048,4096]
+k_list = [256, 512, 1024, 2048, 4096 ]
+efsearch_list = []
 
 dict_list = []
 for k in k_list:
@@ -93,8 +93,8 @@ for k in k_list:
     recall = calculate_recall(I_hnsw, I_true)
     recall_manul = calculate_recall(I_hnsw_manul,I_true)
     
-    print("HNSW indices:", I_hnsw)
-    print("ground truth indices:", I_true)
+    # print("HNSW indices:", I_hnsw)
+    # print("ground truth indices:", I_true)
 
     print(f"FAISS recall (Recall@{k}): {recall * 100:.2f}%")
     print(f"Customized HNSW recall (Recall@{k}): {recall_manul * 100:.2f}%")
