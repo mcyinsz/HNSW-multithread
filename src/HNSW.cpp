@@ -621,10 +621,10 @@ int search_from_candidates(
         // distances that are processed already that are smaller
         // than d0
 
-        int n_dis_below = count_below(previous_poped_distance,d0);
-        if (n_dis_below >= efSearch) {
-            break;
-        }
+        // int n_dis_below = count_below(previous_poped_distance,d0);
+        // if (n_dis_below >= efSearch) {
+        //     break;
+        // }
 
         // start search in current candidate's neighbors
         size_t begin, end;
@@ -653,9 +653,9 @@ int search_from_candidates(
 
         // add one hop
         nstep++;
-        // if (nstep > efSearch) {
-        //     break;
-        // }
+        if (ndis > efSearch) { // constraint ndis must lower than efSearch
+            break;
+        }
     }
 
     // update probe state
