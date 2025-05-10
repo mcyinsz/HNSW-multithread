@@ -13,6 +13,10 @@ DistanceComputer* storage_distance_computer(const IndexFlat* storage) {
     return storage->get_distance_computer();
 }
 
+DistanceComputer* storage_distance_computer(const IndexFlat* storage, MetricType metric) {
+    return storage->get_distance_computer(metric);
+}
+
 void hnsw_add_vertices(
         IndexHNSW& index_hnsw,
         int n0,
@@ -134,7 +138,10 @@ void hnsw_add_vertices(
 }
 
 IndexHNSW::IndexHNSW(int d, int M, MetricType metric)
-        : Index(d, metric), hnsw(M), storage(new IndexFlat(d, metric)) {}
+        : Index(d, metric), hnsw(M), storage(new IndexFlat(d, metric)), search_metric(metric) {}
+
+IndexHNSW::IndexHNSW(int d, int M, MetricType metric, MetricType search_metric)
+        : Index(d, metric), hnsw(M), storage(new IndexFlat(d, metric)), search_metric(search_metric) {}
 
 
 void IndexHNSW::add(int n, const std::vector<float>& x) {
@@ -162,7 +169,7 @@ void hnsw_search(
     #pragma omp parallel for schedule(static) // parallel searching
     for (int query_number = 0; query_number < n; query_number ++){
     
-        std::unique_ptr<DistanceComputer> dis(storage_distance_computer(index->storage));
+        std::unique_ptr<DistanceComputer> dis(storage_distance_computer(index->storage, index->search_metric));
 
         VisitedTable vt(index->ntotal);
         HeapResultHandler& res = bres[query_number]; // citation! not duplication!
@@ -203,7 +210,7 @@ void IndexHNSW::search(
 
     for (int i = 0; i < n; ++i) {
         auto [distance, index] = res_list[i].end();
-        if (metric_type == INNER_PRODUCT) {
+        if (search_metric == INNER_PRODUCT || search_metric == COSINE_SIMILARITY) {
             std::transform(distance.begin(), distance.end(), distance.begin(), [](float x) { return -x; }); // the instant function
         }
         distances.push_back(distance);

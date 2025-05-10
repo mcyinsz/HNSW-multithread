@@ -23,6 +23,7 @@ PYBIND11_MODULE(index_hnsw_py, m) {
     py::enum_<MetricType>(m, "MetricType")
         .value("INNER_PRODUCT", MetricType::INNER_PRODUCT)
         .value("L2_DISTANCE", MetricType::L2_DISTANCE)
+        .value("COSINE_SIMILARITY", MetricType::COSINE_SIMILARITY)
         .export_values();
 
     // Index基类绑定
@@ -99,6 +100,13 @@ PYBIND11_MODULE(index_hnsw_py, m) {
             py::arg("d") = 0,
             py::arg("M") = 32,
             py::arg("metric") = MetricType::INNER_PRODUCT)
+
+        .def(py::init<int, int, MetricType, MetricType>(),
+            py::arg("d"),
+            py::arg("M"),
+            py::arg("metric"),
+            py::arg("search_metric"))
+
         .def("add", [](IndexHNSW& self, py::array_t<float, py::array::c_style | py::array::forcecast> data) {
             check_dimensions(data, self.d, "Input data must have shape [n, d]");
             

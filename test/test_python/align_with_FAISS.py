@@ -42,7 +42,7 @@ index_hnsw.hnsw.metric_type = faiss.IndexFlatIP(d)
 index_hnsw.add(np.array(database_vectors))
 
 # Manil HNSW build graph
-index_hnsw_manul = ih.IndexHNSW(d,M=32, metric=ih.MetricType.INNER_PRODUCT)
+index_hnsw_manul = ih.IndexHNSW(d,M=32, metric=ih.MetricType.COSINE_SIMILARITY, search_metric = ih.MetricType.INNER_PRODUCT)
 index_hnsw_manul.efConstruction = 50
 index_hnsw_manul.add(database_vectors)
 

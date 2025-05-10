@@ -22,8 +22,12 @@ class IndexHNSW: public Index{
         // reach the degree limit in graph level 0
         bool keep_max_size_level0 = false;
 
+        // search metric type
+        MetricType search_metric = INNER_PRODUCT;
+
         explicit IndexHNSW(int d = 0, int M = 32, MetricType metric = INNER_PRODUCT);
-        // explicit IndexHNSW(Index* storage, int M = 32);
+        
+        explicit IndexHNSW(int d, int M, MetricType metric, MetricType search_metric);
 
         ~IndexHNSW() override;
 
