@@ -11,19 +11,14 @@ import numpy as np
 import index_hnsw_py as ih
 import time
 
-# build index instances
-np.random.seed(42)
-d = 128
-index = ih.IndexHNSW(d=d,M=24, metric=ih.MetricType.INNER_PRODUCT)
-index.efConstruction = 24
-
 import faiss
 import numpy as np
 
 d = 128
 n_data = 131072
 n_query = 1
-normalized = 1
+normalized = 0
+M = 32
 # np.random.seed(124)
 def normalize(x):
     if normalized:
@@ -42,12 +37,13 @@ np.random.seed(seed)
 
 
 # FAISS build graph
-index_hnsw = faiss.IndexHNSWFlat(d, 20)
+index_hnsw = faiss.IndexHNSWFlat(d, 32)
 index_hnsw.hnsw.metric_type = faiss.IndexFlatIP(d)
 index_hnsw.add(np.array(database_vectors))
 
 # Manil HNSW build graph
-index_hnsw_manul = ih.IndexHNSW(d,M=20, metric=ih.MetricType.INNER_PRODUCT)
+index_hnsw_manul = ih.IndexHNSW(d,M=32, metric=ih.MetricType.INNER_PRODUCT)
+index_hnsw_manul.efConstruction = 50
 index_hnsw_manul.add(database_vectors)
 
 

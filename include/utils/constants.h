@@ -9,5 +9,6 @@
 
 enum MetricType {
     INNER_PRODUCT = 0,
-    L2_DISTANCE = 1
+    L2_DISTANCE = 1,
+    COSINE_SIMILARITY = 2
 };
