@@ -45,6 +45,20 @@ public:
             return new GenericDistanceComputerIP_AVX512(vectors, d);
         } else if (metric_type == L2_DISTANCE) {
             return new GenericDistanceComputerL2_AVX512(vectors, d);
+        } else if (metric_type == COSINE_SIMILARITY) {
+            return new GenericDistanceComputerCosine_AVX512(vectors, d);
+        }
+        return nullptr;
+    }
+
+    // get_distance_computer with parsed parameter
+    DistanceComputer* get_distance_computer(MetricType parsed_metric_type) const {
+        if (parsed_metric_type == INNER_PRODUCT) {
+            return new GenericDistanceComputerIP_AVX512(vectors, d);
+        } else if (parsed_metric_type == L2_DISTANCE) {
+            return new GenericDistanceComputerL2_AVX512(vectors, d);
+        } else if (parsed_metric_type == COSINE_SIMILARITY) {
+            return new GenericDistanceComputerCosine_AVX512(vectors, d);
         }
         return nullptr;
     }
