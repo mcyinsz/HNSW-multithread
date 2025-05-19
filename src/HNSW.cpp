@@ -537,12 +537,12 @@ HNSWStats HNSW::search(
         stats.combine(local_stats);
 
         // probe for once
-        std::cout << "level: " << level << "\t"
-              << "ndis: " << local_stats.ndis << "\t"
-              << "nhops: " << local_stats.nhops << "\t"
-              << "cur ndis: " << stats.ndis << "\t"
-              << "cur hop: " << stats.nhops << "\t" <<
-              std::endl;
+        // std::cout << "level: " << level << "\t"
+        //       << "ndis: " << local_stats.ndis << "\t"
+        //       << "nhops: " << local_stats.nhops << "\t"
+        //       << "cur ndis: " << stats.ndis << "\t"
+        //       << "cur hop: " << stats.nhops << "\t" <<
+        //       std::endl;
         }
 
     // int ef = std::max(params ? params->efSearch : efSearch, k);
@@ -557,10 +557,10 @@ HNSWStats HNSW::search(
             *this, qdis, res, vec_candidates, vt, stats, 0, 0, Param_efSearch);
     vt.advance();
 
-    std::cout << "level: " << 0 << "\t"
-              << "cur ndis: " << stats.ndis << "\t"
-              << "cur hop: " << stats.nhops << "\t" <<
-              std::endl;
+    // std::cout << "level: " << 0 << "\t"
+    //           << "cur ndis: " << stats.ndis << "\t"
+    //           << "cur hop: " << stats.nhops << "\t" <<
+    //           std::endl;
 
     return stats;
 }
